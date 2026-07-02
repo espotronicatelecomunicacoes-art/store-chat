@@ -1,1 +1,1 @@
-window.SA_API_BASE = 'https://https://witty-ducks-buy.loca.lt';
+window.SA_API_BASE = 'https://espotronica.loca.lt';
