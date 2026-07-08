@@ -282,6 +282,32 @@
   let currentProductId = null; 
   let currentProductName = null;
 
+  // The backend keeps short-term conversation memory (last few messages,
+  // last-discussed product) per session id, and expects the widget to send
+  // a stable "x-session-id" header (see server.js's getSessionId()). Without
+  // one, every request that doesn't send this header falls back to grouping
+  // by IP address — meaning two different visitors on the same network
+  // (office wifi, a shared NAT, etc.) would silently share one conversation
+  // history and "last product" with each other. Generate one UUID per
+  // browser and persist it, so each visitor reliably gets their own memory
+  // across page reloads/tabs.
+  function getOrCreateSessionId() {
+    const STORAGE_KEY = 'sa_session_id';
+    try {
+      let id = localStorage.getItem(STORAGE_KEY);
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem(STORAGE_KEY, id);
+      }
+      return id;
+    } catch {
+      // localStorage unavailable (private browsing, etc.) — fall back to an
+      // in-memory id that at least stays stable for this page load.
+      return crypto.randomUUID();
+    }
+  }
+  const sessionId = getOrCreateSessionId();
+
   const TRANSLATIONS = {
     en: {
       title: "Store Assistant",
@@ -393,6 +419,11 @@
 
   async function loadCategories() {
     currentCategory = null;
+    // A trip back to the top menu is a deliberate "new topic" signal from
+    // the visitor — don't let a product from the previous topic keep being
+    // silently attached to whatever they ask next.
+    currentProductId = null;
+    currentProductName = null;
     const t = TRANSLATIONS[currentLang];
     addMessage(t.greeting, 'bot');
     addQuickReplies(
@@ -452,7 +483,7 @@
     try {
       const res = await fetch(`${API_BASE}/api/ask`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-session-id': sessionId },
         body: JSON.stringify({ category, entryId, currentProductId, lang: currentLang }),
       });
       const data = await res.json();
@@ -470,7 +501,7 @@
     try {
       const res = await fetch(`${API_BASE}/api/ask-text`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-session-id': sessionId },
         body: JSON.stringify({ question, category: currentCategory, currentProductId, lang: currentLang }),
       });
       const data = await res.json();
