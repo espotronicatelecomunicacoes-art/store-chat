@@ -76,6 +76,29 @@
     100% { box-shadow: 0 0 0 0 rgba(14, 165, 164, 0); }
   }
 
+  #sa-lang-toggle {
+    margin-left: auto;
+    display: flex;
+    gap: 2px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+  .sa-lang-btn {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.75);
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .sa-lang-btn.sa-lang-active { background: #fff; color: var(--header-bg); }
+  .sa-lang-btn:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+
   #sa-messages {
     flex: 1 1 auto;
     min-height: 0; 
@@ -165,6 +188,7 @@
     #sa-input { padding: 10px 16px; }
     #sa-send { width: 40px; height: 40px; }
     .sa-msg { max-width: 88%; }
+    .sa-lang-btn { padding: 4px 8px; font-size: 11px; }
   }
 
   @media (max-width: 360px) {
@@ -187,6 +211,10 @@
         <span class="sa-title">Store Assistant</span>
         <span class="sa-status"><span class="sa-dot"></span>Online</span>
       </div>
+      <div id="sa-lang-toggle" role="group" aria-label="Language">
+        <button type="button" class="sa-lang-btn" data-lang="en">EN</button>
+        <button type="button" class="sa-lang-btn" data-lang="pt">PT</button>
+      </div>
     </header>
 
     <div id="sa-messages"></div>
@@ -206,15 +234,46 @@
   const messages = document.getElementById('sa-messages');
   const form = document.getElementById('sa-form');
   const input = document.getElementById('sa-input');
+  const langButtons = document.querySelectorAll('.sa-lang-btn');
 
   let currentProductId = null;
   let currentProductName = null;
+  let currentLang = 'en';
+
+  const UI_TEXT = {
+    en: {
+      greeting: 'Hi! Ask me anything about our products \u2014 pricing, stock, specs, or comparisons.',
+      placeholder: 'Type your question...',
+      looking_at: (name) => `Looking at: ${name}`,
+    },
+    pt: {
+      greeting: 'Ol\u00e1! Pergunte-me o que quiser sobre os nossos produtos \u2014 pre\u00e7os, stock, especifica\u00e7\u00f5es ou compara\u00e7\u00f5es.',
+      placeholder: 'Escreva a sua pergunta...',
+      looking_at: (name) => `A ver: ${name}`,
+    },
+  };
+
+  function setLang(lang, opts = {}) {
+    const changed = lang !== currentLang;
+    currentLang = lang;
+    langButtons.forEach((btn) => {
+      btn.classList.toggle('sa-lang-active', btn.dataset.lang === lang);
+    });
+    input.placeholder = UI_TEXT[lang].placeholder;
+    if (changed && !opts.silent) {
+      addSystemNote(lang === 'pt' ? 'Idioma alterado para Portugu\u00eas' : 'Language switched to English');
+    }
+  }
+
+  langButtons.forEach((btn) => {
+    btn.addEventListener('click', () => setLang(btn.dataset.lang));
+  });
 
   function updateProductContext(id, name) {
     if (!id || id === currentProductId) return;
     currentProductId = id;
     currentProductName = name;
-    addSystemNote(`Looking at: ${name}`);
+    addSystemNote(UI_TEXT[currentLang].looking_at(name));
   }
 
   function scrollToBottom() {
@@ -267,7 +326,7 @@
       const res = await fetch(`${API_BASE}/api/ask-text`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, currentProductId }),
+        body: JSON.stringify({ question, currentProductId, lang: currentLang }),
       });
       const data = await res.json();
       hideTyping();
@@ -286,7 +345,8 @@
     askFreeText(question);
   });
 
-  addMessage('Hi! Ask me anything about our products \u2014 pricing, stock, specs, or comparisons.', 'bot');
+  setLang('en', { silent: true });
+  addMessage(UI_TEXT[currentLang].greeting, 'bot');
   input.focus();
 })();
 </script>
