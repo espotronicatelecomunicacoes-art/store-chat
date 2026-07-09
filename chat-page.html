@@ -30,9 +30,11 @@
   }
 
   #sa-page {
+    --sa-widget-height: 640px;
     display: flex;
     flex-direction: column;
-    max-height: min(640px, 100dvh);
+    height: var(--sa-widget-height);
+    max-height: 100dvh;
     max-width: 860px;
     margin: 0 auto;
     background: var(--panel-bg);
@@ -48,17 +50,9 @@
     padding: 16px 24px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 12px;
     flex-shrink: 0;
   }
-  
-  .sa-header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
   .sa-header-avatar {
     width: 36px; height: 36px;
     border-radius: 50%;
@@ -80,38 +74,6 @@
     0% { box-shadow: 0 0 0 0 rgba(14, 165, 164, 0.5); }
     70% { box-shadow: 0 0 0 6px rgba(14, 165, 164, 0); }
     100% { box-shadow: 0 0 0 0 rgba(14, 165, 164, 0); }
-  }
-
-  /* Language Switcher Styles */
-  .sa-lang-container {
-    display: flex;
-    gap: 4px;
-    background: rgba(255, 255, 255, 0.12);
-    padding: 3px;
-    border-radius: 999px;
-  }
-  .sa-lang-toggle {
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    padding: 4px 8px;
-    cursor: pointer;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, transform 0.1s;
-    line-height: 1;
-  }
-  .sa-lang-toggle:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  .sa-lang-toggle.active {
-    background: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  }
-  .sa-lang-toggle:focus-visible {
-    outline: 2px solid #fff;
   }
 
   #sa-messages {
@@ -150,27 +112,6 @@
   }
   .sa-from-user .sa-msg { background: var(--bubble-user-bg); color: var(--bubble-user-ink); border-bottom-right-radius: 4px; }
   .sa-from-bot .sa-msg { background: var(--bubble-bot-bg); color: var(--bubble-bot-ink); border-bottom-left-radius: 4px; }
-
-  .sa-quick-replies {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 4px;
-    max-width: 70%;
-  }
-  .sa-quick-btn {
-    text-align: left;
-    background: var(--accent-soft);
-    color: #d2effd;
-    border: 1px solid #cdeceb;
-    border-radius: var(--radius-md);
-    padding: 10px 14px;
-    font-size: 14px;
-    font-family: var(--font);
-    cursor: pointer;
-  }
-  .sa-quick-btn:hover { background: #d2effd; color: var(--accent-soft)}
-  .sa-quick-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
   .sa-typing { display: flex; gap: 4px; padding: 11px 14px; }
   .sa-typing span {
@@ -217,13 +158,13 @@
   #sa-send svg { width: 18px; height: 18px; }
 
   @media (max-width: 600px) {
-    #sa-page { max-height: 100dvh; border-radius: 0; }
+    #sa-page { --sa-widget-height: 100dvh; border-radius: 0; }
     #sa-header { padding: 12px 16px; gap: 10px; }
     #sa-messages { padding: 16px; gap: 10px; }
     #sa-form { padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px)); gap: 8px; }
     #sa-input { padding: 10px 16px; }
     #sa-send { width: 40px; height: 40px; }
-    .sa-msg, .sa-quick-replies { max-width: 88%; }
+    .sa-msg { max-width: 88%; }
   }
 
   @media (max-width: 360px) {
@@ -231,7 +172,7 @@
     .sa-title { font-size: 14px; }
     .sa-status { font-size: 12px; }
     #sa-messages { padding: 12px; }
-    .sa-msg, .sa-quick-replies { max-width: 92%; }
+    .sa-msg { max-width: 92%; }
   }
 </style>
 </head>
@@ -239,19 +180,12 @@
 
   <div id="sa-page">
     <header id="sa-header">
-      <div class="sa-header-left">
-        <div class="sa-header-avatar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-        </div>
-        <div class="sa-header-text">
-          <span class="sa-title" id="sa-title-text">Store Assistant</span>
-          <span class="sa-status"><span class="sa-dot"></span><span id="sa-status-text">Online</span></span>
-        </div>
+      <div class="sa-header-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       </div>
-      
-      <div class="sa-lang-container">
-        <button type="button" class="sa-lang-toggle active" data-lang="en" aria-label="Switch to English">🇺🇸</button>
-        <button type="button" class="sa-lang-toggle" data-lang="pt" aria-label="Mudar para Português">🇵🇹</button>
+      <div class="sa-header-text">
+        <span class="sa-title">Store Assistant</span>
+        <span class="sa-status"><span class="sa-dot"></span>Online</span>
       </div>
     </header>
 
@@ -272,88 +206,15 @@
   const messages = document.getElementById('sa-messages');
   const form = document.getElementById('sa-form');
   const input = document.getElementById('sa-input');
-  const titleText = document.getElementById('sa-title-text');
-  const statusText = document.getElementById('sa-status-text');
-  const sendButton = document.getElementById('sa-send');
-  const langButtons = document.querySelectorAll('.sa-lang-toggle');
 
-  let currentLang = 'en';
-  let currentCategory = null; 
-  let currentProductId = null; 
+  let currentProductId = null;
   let currentProductName = null;
-
-  // The backend keeps short-term conversation memory (last few messages,
-  // last-discussed product) per session id, and expects the widget to send
-  // a stable "x-session-id" header (see server.js's getSessionId()). Without
-  // one, every request that doesn't send this header falls back to grouping
-  // by IP address — meaning two different visitors on the same network
-  // (office wifi, a shared NAT, etc.) would silently share one conversation
-  // history and "last product" with each other. Generate one UUID per
-  // browser and persist it, so each visitor reliably gets their own memory
-  // across page reloads/tabs.
-  function getOrCreateSessionId() {
-    const STORAGE_KEY = 'sa_session_id';
-    try {
-      let id = localStorage.getItem(STORAGE_KEY);
-      if (!id) {
-        id = crypto.randomUUID();
-        localStorage.setItem(STORAGE_KEY, id);
-      }
-      return id;
-    } catch {
-      // localStorage unavailable (private browsing, etc.) — fall back to an
-      // in-memory id that at least stays stable for this page load.
-      return crypto.randomUUID();
-    }
-  }
-  const sessionId = getOrCreateSessionId();
-
-  const TRANSLATIONS = {
-    en: {
-      title: "Store Assistant",
-      status: "Online",
-      placeholder: "Type your question...",
-      sendLabel: "Send message",
-      lookingAt: "Looking at:",
-      errorConnection: "Sorry, I can't reach the assistant right now. Make sure the backend server is running.",
-      errorGeneric: "Sorry, something went wrong.",
-      chooseQuestion: "Choose a question:",
-      backToTopics: "\u2190 Back to topics",
-      greeting: "Hi! What can I help you with today?",
-      noQuestions: "No questions found for this topic yet.",
-      topMenu: [
-        { label: 'Product Questions', kind: 'freetext', prompt: "What would you like to know? You can ask about a specific product (by name or ID), or ask things like \"what cameras are available\"." },
-        { label: 'Orders & Shipping', kind: 'category', category: 'shipping_orders' },
-        { label: 'Compare Products', kind: 'freetext', prompt: "Tell me which two products you're looking at and I'll do my best with what I know." },
-        { label: 'Customer Support', kind: 'freetext', prompt: "Describe your question or issue below and I'll do my best to help." },
-      ]
-    },
-    pt: {
-      title: "Assistente da Loja",
-      status: "Online",
-      placeholder: "Digite a sua pergunta...",
-      sendLabel: "Enviar mensagem",
-      lookingAt: "A ver:",
-      errorConnection: "Desculpe, não consigo contactar o assistente agora. Certifique-se de que o servidor backend está a funcionar.",
-      errorGeneric: "Desculpe, ocorreu um erro inesperado.",
-      chooseQuestion: "Escolha uma pergunta:",
-      backToTopics: "\u2190 Voltar aos tópicos",
-      greeting: "Olá! Como posso ajudar hoje?",
-      noQuestions: "Nenhuma pergunta encontrada para este tópico ainda.",
-      topMenu: [
-        { label: 'Questões sobre Produtos', kind: 'freetext', prompt: "O que gostaria de saber? Pode perguntar sobre um produto específico (por nome ou ID), ou perguntar algo como \"que câmaras estão disponíveis\"." },
-        { label: 'Encomendas e Envios', kind: 'category', category: 'shipping_orders' },
-        { label: 'Comparar Produtos', kind: 'freetext', prompt: "Diga-me quais os dois produtos que está a analisar e farei o meu melhor com a informação que tenho." },
-        { label: 'Suporte ao Cliente', kind: 'freetext', prompt: "Descreva a sua questão ou problema abaixo e farei o meu melhor para ajudar." },
-      ]
-    }
-  };
 
   function updateProductContext(id, name) {
     if (!id || id === currentProductId) return;
     currentProductId = id;
     currentProductName = name;
-    addSystemNote(`${TRANSLATIONS[currentLang].lookingAt} ${name}`);
+    addSystemNote(`Looking at: ${name}`);
   }
 
   function scrollToBottom() {
@@ -379,24 +240,6 @@
     scrollToBottom();
   }
 
-  function addQuickReplies(items, onPick) {
-    const row = document.createElement('div');
-    row.className = 'sa-row sa-from-bot';
-    const wrap = document.createElement('div');
-    wrap.className = 'sa-quick-replies';
-    items.forEach(({ label, value }) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'sa-quick-btn';
-      btn.textContent = label;
-      btn.addEventListener('click', () => onPick(value, label));
-      wrap.appendChild(btn);
-    });
-    row.appendChild(wrap);
-    messages.appendChild(row);
-    scrollToBottom();
-  }
-
   let typingRow = null;
   function showTyping() {
     typingRow = document.createElement('div');
@@ -414,85 +257,7 @@
 
   function friendlyError() {
     hideTyping();
-    addMessage(TRANSLATIONS[currentLang].errorConnection, 'bot');
-  }
-
-  async function loadCategories() {
-    currentCategory = null;
-    // A trip back to the top menu is a deliberate "new topic" signal from
-    // the visitor — don't let a product from the previous topic keep being
-    // silently attached to whatever they ask next.
-    currentProductId = null;
-    currentProductName = null;
-    const t = TRANSLATIONS[currentLang];
-    addMessage(t.greeting, 'bot');
-    addQuickReplies(
-      t.topMenu.map((item, i) => ({ label: item.label, value: i })),
-      (index) => handleTopMenuChoice(t.topMenu[index])
-    );
-  }
-
-  async function handleTopMenuChoice(item) {
-    addMessage(item.label, 'user');
-    currentCategory = null;
-
-    if (item.kind === 'category') {
-      loadMenu(item.category, item.label, { skipUserEcho: true });
-      return;
-    }
-
-    if (item.kind === 'freetext') {
-      addMessage(item.prompt, 'bot');
-      input.focus();
-      return;
-    }
-  }
-
-  async function loadMenu(category, categoryLabel, opts = {}) {
-    if (!opts.skipUserEcho) addMessage(categoryLabel, 'user');
-    currentCategory = category;
-    showTyping();
-    try {
-      const res = await fetch(`${API_BASE}/api/menu/${category}?lang=${currentLang}`);
-      if (!res.ok) {
-        hideTyping();
-        addMessage(TRANSLATIONS[currentLang].noQuestions, 'bot');
-        return;
-      }
-      const data = await res.json();
-      hideTyping();
-      addMessage(TRANSLATIONS[currentLang].chooseQuestion, 'bot');
-      const items = data.options.map((o) => ({ label: o.question, value: o.id }));
-      items.push({ label: TRANSLATIONS[currentLang].backToTopics, value: '__back__' });
-      addQuickReplies(items, (entryId, label) => {
-        if (entryId === '__back__') {
-          addMessage(label, 'user');
-          loadCategories();
-        } else {
-          askMenu(category, entryId, label);
-        }
-      });
-    } catch (err) {
-      friendlyError();
-    }
-  }
-
-  async function askMenu(category, entryId, label) {
-    addMessage(label, 'user');
-    showTyping();
-    try {
-      const res = await fetch(`${API_BASE}/api/ask`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-session-id': sessionId },
-        body: JSON.stringify({ category, entryId, currentProductId, lang: currentLang }),
-      });
-      const data = await res.json();
-      hideTyping();
-      if (data.matched_product_id) updateProductContext(data.matched_product_id, data.matched_product_name);
-      addMessage(data.answer || TRANSLATIONS[currentLang].errorGeneric, 'bot');
-    } catch (err) {
-      friendlyError();
-    }
+    addMessage("Sorry, I can't reach the assistant right now. Make sure the backend server is running.", 'bot');
   }
 
   async function askFreeText(question) {
@@ -501,50 +266,17 @@
     try {
       const res = await fetch(`${API_BASE}/api/ask-text`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-session-id': sessionId },
-        body: JSON.stringify({ question, category: currentCategory, currentProductId, lang: currentLang }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, currentProductId }),
       });
       const data = await res.json();
       hideTyping();
       if (data.matched_product_id) updateProductContext(data.matched_product_id, data.matched_product_name);
-      addMessage(data.answer || TRANSLATIONS[currentLang].errorGeneric, 'bot');
+      addMessage(data.answer || 'Sorry, something went wrong.', 'bot');
     } catch (err) {
       friendlyError();
     }
   }
-
-  function changeLanguage(lang) {
-    if (currentLang === lang) return;
-    currentLang = lang;
-
-    // Update active visual switch states
-    langButtons.forEach(btn => {
-      if (btn.getAttribute('data-lang') === lang) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
-
-    // Translate UI Elements
-    const t = TRANSLATIONS[currentLang];
-    titleText.textContent = t.title;
-    statusText.textContent = t.status;
-    input.placeholder = t.placeholder;
-    sendButton.setAttribute('aria-label', t.sendLabel);
-
-    // Refresh layout state
-    messages.innerHTML = '';
-    loadCategories();
-    input.focus();
-  }
-
-  // Language buttons selector listeners
-  langButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      changeLanguage(btn.getAttribute('data-lang'));
-    });
-  });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -554,8 +286,7 @@
     askFreeText(question);
   });
 
-  // Initial Boot
-  loadCategories();
+  addMessage('Hi! Ask me anything about our products \u2014 pricing, stock, specs, or comparisons.', 'bot');
   input.focus();
 })();
 </script>
